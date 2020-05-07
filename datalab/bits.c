@@ -143,7 +143,11 @@ NOTES:
  */
 int bitXor(int x, int y)
 {
-  return (x & ~y) | (~x & y);
+  /* 利用如下等式
+      a^b = (x & ~y) | (~x & y)
+      a|b = ~(~x & ~y)
+  */
+  return ~(~(x & ~y) & (~(~x & y)));
 }
 /* 
  * tmin - return minimum two's complement integer 
