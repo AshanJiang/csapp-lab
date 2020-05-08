@@ -149,6 +149,7 @@ int bitXor(int x, int y)
   */
   return ~(~(x & ~y) & (~(~x & y)));
 }
+//只能使用0-255的整数0xff和这些预算得出int最小值
 /* 
  * tmin - return minimum two's complement integer 
  *   Legal ops: ! ~ & ^ | + << >>
@@ -157,8 +158,9 @@ int bitXor(int x, int y)
  */
 int tmin(void)
 {
-
-  return 2;
+  //只需要把1左移31为即可得到32位最小补码数
+  int t = 1;
+  return t << 31;
 }
 //2
 /*
