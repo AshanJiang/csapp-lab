@@ -162,7 +162,7 @@ int tmin(void)
   int t = 1;
   return t << 31;
 }
-//2
+//2如果x是最大int值返回1否则返回0
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
  *     and 0 otherwise 
@@ -172,7 +172,19 @@ int tmin(void)
  */
 int isTmax(int x)
 {
-  return 2;
+  /*
+  只需要让0111 1111 ... 1111这个最大数返回1其他数返回0就可以了
+  只有0和1000 0000 ... 0000这两个数自己加自己还是0
+  利用这个性质，最大数（前四位）0111 + 1溢出得到1000再自加就能溢出为0
+  但需要处理-1，但是不能用&&和if，想到利用0和1000 0000 ... 0000的不同
+  现在要0返回0，而1000 0000 ... 0000返回1，利用!!num将非0数都转化为1
+  再让!!num与之前自加得出的结果相与(Tmax和-1返回都是1)，就会让0得到0，Tmax得到1
+  */
+  // int y, z;
+  // y = x + 1;
+  // z = y + y;
+  // return (!z) & (!!y);
+  return (!(x+1+x+1))&(!!(x+1));
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
