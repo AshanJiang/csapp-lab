@@ -198,6 +198,10 @@ int isTmax(int x)
  */
 int allOddBits(int x)
 {
+  /*
+  以0xAAAAAAAA位掩码，所有和这个数相与还是这个数的x就满足条件
+  再异或掩码本身，取反即可
+  */
   int mask = 0xaa + (0xaa << 8) + (0xaa << 16) + (0xaa << 24);
   return !((x & mask) ^ mask);
 }
