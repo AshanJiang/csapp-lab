@@ -180,13 +180,15 @@ int isTmax(int x)
   现在要0返回0，而1000 0000 ... 0000返回1，利用!!num将非0数都转化为1
   再让!!num与之前自加得出的结果相与(Tmax和-1返回都是1)，就会让0得到0，Tmax得到1
   */
+  //这样写编译器优化会导致出错
   // int y, z;
   // y = x + 1;
   // z = y + y;
   // return (!z) & (!!y);
-  return (!(x+1+x+1))&(!!(x+1));
+  return (!(x + 1 + x + 1)) & (!!(x + 1));
 }
 /* 
+ *   所有奇数位为1的数返回1，最低有效位序号是0，最高有效位序号是31
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
  *   where bits are numbered from 0 (least significant) to 31 (most significant)
  *   Examples allOddBits(0xFFFFFFFD) = 0, allOddBits(0xAAAAAAAA) = 1
@@ -196,7 +198,8 @@ int isTmax(int x)
  */
 int allOddBits(int x)
 {
-  return 2;
+  int mask = 0xaa + (0xaa << 8) + (0xaa << 16) + (0xaa << 24);
+  return !((x & mask) ^ mask);
 }
 /* 
  * negate - return -x 
