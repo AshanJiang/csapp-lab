@@ -206,6 +206,7 @@ int allOddBits(int x)
   return !((x & mask) ^ mask);
 }
 /* 
+ * 取反
  * negate - return -x 
  *   Example: negate(1) = -1.
  *   Legal ops: ! ~ & ^ | + << >>
@@ -214,7 +215,8 @@ int allOddBits(int x)
  */
 int negate(int x)
 {
-  return 2;
+  //按位取反再加1
+  return ~x + 1;
 }
 //3
 /* 
