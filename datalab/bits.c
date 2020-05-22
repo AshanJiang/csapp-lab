@@ -220,6 +220,7 @@ int negate(int x)
 }
 //3
 /* 
+ * x是不是ascii的'0'-'9'
  * isAsciiDigit - return 1 if 0x30 <= x <= 0x39 (ASCII codes for characters '0' to '9')
  *   Example: isAsciiDigit(0x35) = 1.
  *            isAsciiDigit(0x3a) = 0.
@@ -230,7 +231,13 @@ int negate(int x)
  */
 int isAsciiDigit(int x)
 {
-  return 2;
+  int mask = 1 << 31;
+  int upperBound = ~(mask | 0x39); //x>0x39时，x+upperBound会溢出，变为负数
+  int lowerBound = ~0x30 + 1;          //x<0x30时,x+lowerBound不会溢出，为负数
+  //综上，x>0x39以及x<0x30为负数
+  int greater = (mask & (x + upperBound)) >> 31; //提取符号位,超出范围的符号位会变为1
+  int lower = (mask & (x + lowerBound)) >> 31;
+  return !(greater | lower);
 }
 /* 
  * conditional - same as x ? y : z 
