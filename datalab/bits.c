@@ -233,13 +233,14 @@ int isAsciiDigit(int x)
 {
   int mask = 1 << 31;
   int upperBound = ~(mask | 0x39); //x>0x39时，x+upperBound会溢出，变为负数
-  int lowerBound = ~0x30 + 1;          //x<0x30时,x+lowerBound不会溢出，为负数
+  int lowerBound = ~0x30 + 1;      //x<0x30时,x+lowerBound不会溢出，为负数
   //综上，x>0x39以及x<0x30为负数
   int greater = (mask & (x + upperBound)) >> 31; //提取符号位,超出范围的符号位会变为1
   int lower = (mask & (x + lowerBound)) >> 31;
   return !(greater | lower);
 }
 /* 
+ * 构成三元运算符?:
  * conditional - same as x ? y : z 
  *   Example: conditional(2,4,5) = 4
  *   Legal ops: ! ~ & ^ | + << >>
@@ -248,8 +249,13 @@ int isAsciiDigit(int x)
  */
 int conditional(int x, int y, int z)
 {
-  return 2;
+  // 对于x≠0，做出一个全1的掩码，对于x=0做出一个全0的掩码
+  int mask = !x + ~0x00;
+  // 全1的掩码与一个数相与得到这个数本身，全0掩码直接将一个数屏蔽为0
+  // 0与任意一个数相或是其本身
+  return (mask & y) | (~mask & z);
 }
+
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
  *   Example: isLessOrEqual(4,5) = 1.
