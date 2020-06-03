@@ -257,6 +257,7 @@ int conditional(int x, int y, int z)
 }
 
 /* 
+ * x<=y则返回1否则返回0
  * isLessOrEqual - if x <= y  then return 1, else return 0 
  *   Example: isLessOrEqual(4,5) = 1.
  *   Legal ops: ! ~ & ^ | + << >>
@@ -265,8 +266,20 @@ int conditional(int x, int y, int z)
  */
 int isLessOrEqual(int x, int y)
 {
-  return 2;
+  int mask = 1 << 31;
+  int signX = 1 & (x >>31); //x的符号位
+  int signY = 1 & (y >>31); //y的符号位
+  int polarity = signX ^ signY; // 同号还是异号
+  // printf("signX=%d,signY=%d,polarity=%d\n", signX, signY, polarity);
+  int sign = (mask & (~x + 1 + y)) >> 31; // 当x和y同号时，通过该计算，x>y时sign为1，x<=y时sign为0
+  // 通过&符号前的运算，可得如下结果，保证同号时可以用sign反应结果
+  //      x 1 0 1 0
+  //      y 0 1 1 0
+  // result 1 0 1 1
+  // 通过&符号后的运算，当x与y同号时，无需屏蔽sign的值，而x与y异号时，将后半部分屏蔽为1，结果只受符号影响，x正y负为0，反之为1
+  return (!!(signX + !signY)) & ((!sign) | polarity);
 }
+
 //4
 /* 
  * logicalNeg - implement the ! operator, using all of 
