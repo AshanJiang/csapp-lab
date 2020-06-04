@@ -267,8 +267,8 @@ int conditional(int x, int y, int z)
 int isLessOrEqual(int x, int y)
 {
   int mask = 1 << 31;
-  int signX = 1 & (x >>31); //x的符号位
-  int signY = 1 & (y >>31); //y的符号位
+  int signX = 1 & (x >> 31);    //x的符号位
+  int signY = 1 & (y >> 31);    //y的符号位
   int polarity = signX ^ signY; // 同号还是异号
   // printf("signX=%d,signY=%d,polarity=%d\n", signX, signY, polarity);
   int sign = (mask & (~x + 1 + y)) >> 31; // 当x和y同号时，通过该计算，x>y时sign为1，x<=y时sign为0
@@ -282,6 +282,7 @@ int isLessOrEqual(int x, int y)
 
 //4
 /* 
+ * 不用!达成非运算
  * logicalNeg - implement the ! operator, using all of 
  *              the legal operators except !
  *   Examples: logicalNeg(3) = 0, logicalNeg(0) = 1
@@ -291,7 +292,10 @@ int isLessOrEqual(int x, int y)
  */
 int logicalNeg(int x)
 {
-  return 2;
+  //除0之外，任何一个数x与其相反数-x(~x+1)相或得到的值都是负数，显然这个数符号位位1
+  //这样就可以区分0和其他数了，之后就很好办了，提取出符号位即可
+  //由于不能用取反，所以要弄出个-1(1111 1111 .... 1111)来，再加1
+  return ((x | (~x + 1)) >> 31) + 1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
