@@ -2,3 +2,5 @@ datalab/btest
 datalab/.vscode/
 test
 test.c
+datalab/fshow
+datalab/ishow

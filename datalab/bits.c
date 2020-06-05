@@ -297,7 +297,9 @@ int logicalNeg(int x)
   //由于不能用取反，所以要弄出个-1(1111 1111 .... 1111)来，再加1
   return ((x | (~x + 1)) >> 31) + 1;
 }
-/* howManyBits - return the minimum number of bits required to represent x in
+/*
+ * 最小需要多少位补码数来表示x（要包含符号位）
+ * howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
  *  Examples: howManyBits(12) = 5
  *            howManyBits(298) = 10
@@ -311,7 +313,30 @@ int logicalNeg(int x)
  */
 int howManyBits(int x)
 {
-  return 0;
+  // 思路很简单，只需要找到第一个为1的位，然后数出这一位到最后一位共有多少位再加1即可，对于负数要先取反，但是只用位操作实现真的很麻烦
+  // 1.正数不变，负数进行位翻转
+  // 1.1提取符号位
+  int isNegative = (x >> 31) & 1;
+  // 1.2生成全0或全1的屏蔽位
+  int mask = (~isNegative) + 1;
+  int a = ~x & mask;   //mask在x>0时应为全0，屏蔽~x；x<0时应为全1，保留~x
+  int b = x & (~mask); //~mask为全1，保留x原值；~mask为全0，屏蔽x原值
+  int normX = a | b;
+  // printf("normX=%d\n", normX);
+  // 2.用二分法（不循环，手动二分）查找第一位1的位置
+  int bit16 = !!(normX >> 16) << 4; // 前16位，是否为0，不为0，则最少16位，此时bit16=16否则为0
+  normX = normX >> bit16;           // 当前16位有数时，过滤掉后16位，否则保留原数
+  int bit8 = !!(normX >> 8) << 3;   //以此类推，每次手动折半
+  normX = normX >> bit8;
+  int bit4 = !!(normX >> 4) << 2;
+  normX = normX >> bit4;
+  int bit2 = !!(normX >> 2) << 1;
+  normX = normX >> bit2;
+  int bit1 = !!(normX >> 1); //倒数第二位
+  normX = normX >> bit1;
+  int bit0 = normX; // 最后一位
+  // printf("bit16=%d, bit8=%d, bit4=%d, bit2=%d, bit1=%d, bit0=%d\n", bit16, bit8, bit4, bit2, bit1, bit0);
+  return 1 + bit0 + bit1 + bit2 + bit4 + bit8 + bit16; // 最后要加上符号为1位
 }
 //float
 /* 
