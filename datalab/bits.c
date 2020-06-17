@@ -324,22 +324,23 @@ int howManyBits(int x)
   int normX = a | b;
   // printf("normX=%d\n", normX);
   // 2.用二分法（不循环，手动二分）查找第一位1的位置
-  int bit16 = !!(normX >> 16) << 4; // 前16位，是否为0，不为0，则最少16位，此时bit16=16否则为0
-  normX = normX >> bit16;           // 当前16位有数时，过滤掉后16位，否则保留原数
-  int bit8 = !!(normX >> 8) << 3;   //以此类推，每次手动折半
+  int bit16, bit8, bit4, bit2, bit1, bit0;
+  bit16 = !!(normX >> 16) << 4; // 前16位，是否为0，不为0，则最少16位，此时bit16=16否则为0
+  normX = normX >> bit16;       // 当前16位有数时，过滤掉后16位，否则保留原数
+  bit8 = !!(normX >> 8) << 3;   //以此类推，每次手动折半
   normX = normX >> bit8;
-  int bit4 = !!(normX >> 4) << 2;
+  bit4 = !!(normX >> 4) << 2;
   normX = normX >> bit4;
-  int bit2 = !!(normX >> 2) << 1;
+  bit2 = !!(normX >> 2) << 1;
   normX = normX >> bit2;
-  int bit1 = !!(normX >> 1); //倒数第二位
+  bit1 = !!(normX >> 1); //倒数第二位
   normX = normX >> bit1;
-  int bit0 = normX; // 最后一位
+  bit0 = normX; // 最后一位
   // printf("bit16=%d, bit8=%d, bit4=%d, bit2=%d, bit1=%d, bit0=%d\n", bit16, bit8, bit4, bit2, bit1, bit0);
   return 1 + bit0 + bit1 + bit2 + bit4 + bit8 + bit16; // 最后要加上符号为1位
 }
 //float
-/* 
+/* 返回二进制表示的浮点数的2倍值
  * floatScale2 - Return bit-level equivalent of expression 2*f for
  *   floating point argument f.
  *   Both the argument and result are passed as unsigned int's, but
@@ -352,7 +353,43 @@ int howManyBits(int x)
  */
 unsigned floatScale2(unsigned uf)
 {
-  return 2;
+  unsigned s = (uf >> 31) & 1;      // 提取符号位
+  unsigned exp = (uf >> 23) & 0xff; // 提取阶码
+  unsigned frac = uf & 0x7fffff;    // 提取尾数
+  unsigned inf = 0x7f800000;
+  unsigned ninf = 0xff800000;
+  // 1.无穷大和溢出
+  if (exp == 255)
+  {
+    if (frac == 0)
+    {
+      if (s == 1)
+        return ninf;
+      else
+        return inf;
+    }
+    else
+    {
+      return uf; // 不是一个数
+    }
+  }
+  // 2.非规格化
+  if (exp == 0)
+  {
+    return (frac << 1) + (s << 31); // 小数部分直接放大2倍，不需要考虑溢出，溢出到阶码位计算结果不变
+  }
+  // 3.规格化
+  if (exp == 254)
+  {
+    if (s == 1)
+        return ninf;
+      else
+        return inf;
+  }
+  else
+  {
+    return (s << 31) + ((exp + 1) << 23) + frac;
+  }
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
