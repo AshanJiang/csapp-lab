@@ -382,16 +382,16 @@ unsigned floatScale2(unsigned uf)
   if (exp == 254)
   {
     if (s == 1)
-        return ninf;
-      else
-        return inf;
+      return ninf;
+    else
+      return inf;
   }
   else
   {
     return (s << 31) + ((exp + 1) << 23) + frac;
   }
 }
-/* 
+/* 将unsigned表示的单精度浮点数转为int型
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
  *   for floating point argument f.
  *   Argument is passed as unsigned int, but
@@ -405,7 +405,52 @@ unsigned floatScale2(unsigned uf)
  */
 int floatFloat2Int(unsigned uf)
 {
-  return 2;
+  unsigned s, exp, frac, nan;
+  int E, shift, integerPart, decimal, ans;
+  s = (uf >> 31) & 1;      // 提取符号位
+  exp = (uf >> 23) & 0xff; // 提取阶码
+  frac = uf & 0x7fffff;    // 提取尾数
+  nan = 0x80000000u;
+  E = exp - 127; // 阶码
+  // 1.非规格化数肯定不大于0，转化为0
+  if (exp == 0)
+  {
+    return 0;
+  }
+  // 2.无穷的和NaN按题意转化为0x80000000u.
+  if (exp == 255)
+  {
+    return nan;
+  }
+  // 3.规格化数
+  shift = E - 23;        // 正则小数部分左移，负则小数部分右移动 浮点数值 = 1.小数部分 * (2 ^ exp) / (2 ^ 23)
+  integerPart = 1 << 23; // 小数部分省略的1
+  decimal = integerPart + frac;
+  // printf("integerPart = %d, frac = %d \n", integerPart, frac);
+  // printf("E = %d, decimal = %d, shift = %d, right_shift = %d \n", E, decimal, shift, decimal >> (-shift));
+  if (shift < 0)
+  {
+    // 右移溢出
+    if (shift < -23)
+    {
+      return 0;
+    }
+    // 右移
+    ans = decimal >> (-shift);
+  }
+  else if (shift <= 8)
+  {
+    // 左移未溢出
+    ans = decimal << shift;
+  }
+  else
+  {
+    // 左移溢出
+    return nan;
+  }
+  if (s == 1)
+    ans = -ans;
+  return ans;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
