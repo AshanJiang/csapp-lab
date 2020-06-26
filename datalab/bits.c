@@ -452,7 +452,7 @@ int floatFloat2Int(unsigned uf)
     ans = -ans;
   return ans;
 }
-/* 
+/* 返回二进制表示的2.0的x次方
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
  *   (2.0 raised to the power x) for any 32-bit integer x.
  *
@@ -467,5 +467,29 @@ int floatFloat2Int(unsigned uf)
  */
 unsigned floatPower2(int x)
 {
-  return 2;
+  unsigned inf = 0x7f800000; // 正无穷
+  // unsigned exp, frac;
+  if (x > 127)
+  {
+    return inf;
+  }
+  else if (x >= 0)
+  {
+    return (x + 127) << 23;
+  }
+  else if (x >= -149)
+  {
+    if (x <= -127) // 非规格化
+    {
+      return 1 << (149 + x);
+    }
+    else // 规格化
+    {
+      return (x + 127) << 23;
+    }
+  }
+  else
+  {
+    return 0;
+  }
 }
